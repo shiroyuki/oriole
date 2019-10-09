@@ -1,0 +1,6 @@
+flask
+gallium==1.4.3a2
+imagination==3.0.0a5
+pyjwt
+pyyaml
+kotoba

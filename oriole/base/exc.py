@@ -1,0 +1,2 @@
+class UnknownBackendModeError(RuntimeError):
+    pass

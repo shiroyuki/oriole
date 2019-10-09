@@ -1,0 +1,4 @@
+backend: sync
+routes:
+  /ping:
+    handler: oriole.endpoing.ping_endpoint.PingHandler

@@ -1,3 +1,7 @@
+.idea
+.vscode
+config/app.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
