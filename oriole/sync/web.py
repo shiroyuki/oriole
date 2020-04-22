@@ -1,8 +1,10 @@
 import argparse
 import datetime
 import json
-from typing import Dict, Optional
+import re
 import uuid
+
+from typing import Dict, Optional
 
 from flask import Flask
 from flask import request
@@ -143,14 +145,24 @@ def delegate_to_front_controller(request_path):
 
     method = str(request.method).lower()
 
+    # List all available paths
     if request_path == 'all':
         if method != 'get':
             return make_error_response('method_not_allowed', status=405)
         return make_json_response(fc.route_map)
-    if request_path not in fc.route_map:
-        return make_error_response('endpoint_not_found', status=404)
 
-    route = fc.route_map[request_path]
+    route = None
+    route_matches: re.Match = None
+
+    for routing_pattern in fc.route_map:
+        route_matches = re.match(routing_pattern, request_path)
+
+        if route_matches:
+            route = fc.route_map[routing_pattern]
+            break
+
+    if not route:
+        return make_error_response('endpoint_not_found', status=404)
 
     if not hasattr(route.handler, method):
         return make_error_response('method_not_allowed',
@@ -159,7 +171,13 @@ def delegate_to_front_controller(request_path):
                                                 method=method.upper()),
                                    status=405)
 
-    return make_json_response(getattr(route.handler(), method)())
+    handling_method = getattr(route.handler(), method)
+    response = handling_method(**route_matches.groupdict())
+
+    if isinstance(response, Response):
+        return response
+
+    return make_json_response(response)
 
 
 def handle_error(e):
