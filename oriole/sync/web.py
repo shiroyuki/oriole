@@ -23,7 +23,7 @@ from oriole.service.front_controller import FrontController
 logger = LoggerFactory.get(__name__)
 
 app = Flask(__name__)
-auto_path_prefix = '/experimental'
+auto_path_prefix = '/api'
 
 
 def make_json_response(content, status: int = 200, headers: Optional[Dict[str, str]] = None) -> Response:
