@@ -92,17 +92,14 @@ def protected():
     request.claims = dict()
     request.user_id = None
 
-    non_secure_requests = [
-        # dict(method: str, rule: str)
-    ]
-
     if request_method == 'OPTIONS':
         return _allow_cors(Response('', status=200, content_type='text/plain'))
 
-    for non_secure_request in non_secure_requests:
-        if request_method == non_secure_request.get('method') and request_path == non_secure_request.get('rule'):
-            logger.debug(f'REQUEST {request.id}: Request to {request_path} is extempted from authentication check.')
-            return
+    fc: FrontController = container.get(FrontController)
+
+    if not fc.require_access_control(request_path[len(auto_path_prefix) + 1:]):
+        logger.debug(f'REQUEST {request.id}: Request to {request_path} is extempted from authentication check.')
+        return
 
     try:
         bearer_token = current_request.headers['authorization']
@@ -151,6 +148,7 @@ def delegate_to_front_controller(request_path):
             return make_error_response('method_not_allowed', status=405)
         return make_json_response(fc.route_map)
 
+    # TODO Use fc.find_route
     route = None
     route_matches: re.Match = None
 
@@ -160,6 +158,7 @@ def delegate_to_front_controller(request_path):
         if route_matches:
             route = fc.route_map[routing_pattern]
             break
+    # TODO ↑
 
     if not route:
         return make_error_response('endpoint_not_found', status=404)

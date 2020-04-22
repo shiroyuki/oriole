@@ -1,4 +1,10 @@
 backend: sync
 routes:
-  ping:
+  "ping":
     handler: oriole.endpoint.ping_endpoint.PingEndpoint
+  "secured-ping":
+    handler: oriole.endpoint.ping_endpoint.SecuredPingEndpoint
+    secured: true
+  "dynamic-ping/(?P<id>[a-zA-Z0-9]+)":
+    handler: oriole.endpoint.ping_endpoint.DynamicPingEndpoint
+    secured: true
